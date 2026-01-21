@@ -1,0 +1,6 @@
+function(enable_coverage)
+    foreach(target ${ARGN})
+        target_compile_options(${target} PRIVATE --coverage -O0 -g)
+        target_link_options(${target} PRIVATE --coverage)
+    endforeach()
+endfunction()

@@ -1,1 +1,3 @@
-# lrm_qsim_vec_state_cpp
+# README
+
+[Dev Guide](docs/dev_guide.md)

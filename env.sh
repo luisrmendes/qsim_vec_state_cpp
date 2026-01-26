@@ -3,7 +3,7 @@
 # Build
 alias b="cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build"
 # Iterative build and run
-alias r='b && ./build/my_program'
+alias r='b && ./build/main'
 # Build Release
 alias br="cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release"
 # Clean Build Artifacts

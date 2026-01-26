@@ -12,6 +12,9 @@ enable_testing()
 add_subdirectory(src)
 add_subdirectory(tests)
 
+add_executable(main main.cpp)
+target_link_libraries(main PRIVATE my_lib)
+
 include(cmake/ClangTools.cmake)
 
 if (ENABLE_COVERAGE)

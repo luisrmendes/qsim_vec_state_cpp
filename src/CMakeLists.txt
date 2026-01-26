@@ -1,5 +1,7 @@
+file(GLOB SOURCES "*.cpp")
+
 add_library(my_lib
-    math.cpp
+    ${SOURCES}
 )
 
 target_include_directories(my_lib

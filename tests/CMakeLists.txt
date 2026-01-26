@@ -1,7 +1,9 @@
 include(${CMAKE_SOURCE_DIR}/cmake/GoogleTest.cmake)
 
+file(GLOB TEST_SOURCES "*.cpp")
+
 add_executable(tests
-    test_math.cpp
+    ${TEST_SOURCES}
 )
 
 target_link_libraries(tests

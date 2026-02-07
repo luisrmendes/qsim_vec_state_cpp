@@ -1,17 +1,29 @@
-#include <iostream>
-#include "qvec_state.hpp"
+#include "qstate_vec.hpp"
 #include <cmath>
+#include <iostream>
+
+#define PRINT(x) std::cerr << "[DEBUG] " << __FILE__ << ":" << __LINE__ << ": " << x << std::endl
+#define MASK(N) (0x1ull << N)
 
 using namespace std;
 
+void print_results(vector<PRECISION_TYPE> results) {
+    for (size_t i = 0; i < results.size(); ++i) {
+        cout << "Qubit " << i + 1 << ": " << results[i] << "\n";
+    }
+}
+
 int main() {
-    QStateVec state(2);
-    state.pretty_print();
+    QStateVec test_state_vector(2);
+    test_state_vector.pretty_print();
+    // test_state_vector.pauli_x(0);
+    test_state_vector.pauli_x(1);
+    test_state_vector.pauli_x(2);
+    test_state_vector.pretty_print();
 
-    complex<double> test1 = {1, 0};
-    complex<double> test2 = {1, -1};
+    auto results = test_state_vector.get_measured_qubits();
 
-    cout << sqrt(pow(test1, 2)) << "\n";
-    cout << sqrt(pow(test2, 2)) << "\n";
+    print_results(results);
+
     return 0;
 }

@@ -1,34 +1,73 @@
-#include "qvec_state.hpp"
+#include "qstate_vec.hpp"
+#include <cassert>
 #include <cmath>
 #include <iostream>
 
 #define MASK(N) (0x1ull << N)
+#define PRINT(var_name, var)                                                                       \
+    std::cerr << "[DEBUG] " << __FILE__ << ":" << __LINE__ << ": " << var_name << ": " << var      \
+              << std::endl
 
 using namespace std;
 
-vector<PRECISION_TYPE> QStateVec::get_measured_qubits() {
-    auto measured_qubits = vector<PRECISION_TYPE>(0.0, this->num_qubits);
+auto QStateVec::pauli_x(const int target_qubit) -> expected<void, Error> {
+    if (target_qubit >= this->num_qubits)
+        return unexpected(Error::invalid_input);
+
+    for (size_t i = 0; i < this->main.size(); i++) {
+        if (abs(this->main[i]) != 0) {
+            auto target_state = i ^ MASK(target_qubit);
+            this->parity[target_state] = this->main[i];
+        }
+    }
+
+    this->reset_parity_layer();
+    return {};
 }
 
-void QStateVec::pretty_print() {
+void QStateVec::reset_parity_layer() {
+    this->main = this->parity;
+    std::fill(this->parity.begin(), this->parity.end(), std::complex<PRECISION_TYPE>(0.0, 0.0));
+}
+
+vector<PRECISION_TYPE> QStateVec::get_measured_qubits() const {
+    auto measured_qubits = vector<PRECISION_TYPE>(this->num_qubits, 0.0);
+
+    for (size_t i = 0; i < this->main.size(); i++) {
+        if (abs(this->main[i]) == 0) {
+            continue;
+        }
+
+        for (int j = 0; j < this->num_qubits; j++) {
+            // Does the current state represent part of the qubit counted by j?
+            if (i & MASK(j)) {
+                measured_qubits[j] += norm(this->main[i]);
+            }
+        }
+    }
+
+    return measured_qubits;
+}
+
+void QStateVec::pretty_print() const {
     stringstream print_buf;
     print_buf << "Main:   ";
 
-    for (size_t i = 0; i < this->main.size(); i++) {
-        print_buf << this->main[i];
+    for (const auto& qubit : this->main) {
+        print_buf << qubit;
     }
     print_buf << "\n";
 
     print_buf << "Parity: ";
-    for (size_t i = 0; i < this->parity.size(); i++) {
-        print_buf << this->parity[i];
+    for (const auto& qubit : this->parity) {
+        print_buf << qubit;
     }
     print_buf << "\n";
 
     cout << print_buf.str() << endl;
 }
 
-QStateVec::QStateVec(const unsigned int num_qubits) {
+QStateVec::QStateVec(const int num_qubits) {
     this->num_qubits = num_qubits;
     uint64_t state_vec_size = 2 * pow(2, num_qubits);
 

@@ -3,7 +3,7 @@
 echo "Loading Project aliases"
 
 # Build
-alias b="cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build"
+alias b="cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON && cmake --build build"
 echo -e "Loaded '\033[1mb\033[0m'\t: Build"
 
 # Iterative build and run

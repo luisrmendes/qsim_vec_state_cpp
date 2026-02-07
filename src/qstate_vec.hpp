@@ -9,9 +9,21 @@
 
 #define PRECISION_TYPE double
 
-typedef std::vector<std::complex<PRECISION_TYPE>> StateVector;
+using StateVector = std::vector<std::complex<PRECISION_TYPE>>;
 
-enum class Error { invalid_input };
+enum class Error : std::uint8_t { invalid_input };
+
+inline std::string to_string(Error err) {
+    switch (err) {
+    case Error::invalid_input:
+        return "Invalid Input";
+    }
+    return "Unknown Error";
+}
+
+inline std::ostream& operator<<(std::ostream& ostr, Error err) {
+    return ostr << to_string(err);
+}
 
 class QStateVec {
   private:
@@ -62,7 +74,6 @@ class QStateVec {
     // void sqrtPauliY(const int targetQubit);
     // void sGate(const int targetQubit);
     // void tGate(const int targetQubit);
-
 
     /**
      * @brief copies values from output state to input state;

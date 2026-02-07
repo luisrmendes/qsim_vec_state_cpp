@@ -11,12 +11,12 @@
 using namespace std;
 
 auto QStateVec::pauli_x(const int target_qubit) -> expected<void, Error> {
-    if (target_qubit >= this->num_qubits)
+    if (target_qubit > this->num_qubits || target_qubit <= 0)
         return unexpected(Error::invalid_input);
 
     for (size_t i = 0; i < this->main.size(); i++) {
         if (abs(this->main[i]) != 0) {
-            auto target_state = i ^ MASK(target_qubit);
+            auto target_state = i ^ MASK((target_qubit - 1));
             this->parity[target_state] = this->main[i];
         }
     }

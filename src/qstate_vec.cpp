@@ -5,14 +5,38 @@
 
 #define MASK(N) (0x1ull << N)
 #define PRINT(var_name, var)                                                                       \
-    std::cerr << "[DEBUG] " << __FILE__ << ":" << __LINE__ << ": " << var_name << ": " << var      \
+    std::cerr << "[DEBUG] " << __FILE__ << ":" << __LINE__ << ": " << (var_name) << ": " << (var)  \
               << std::endl
 
 using namespace std;
 
-auto QStateVec::pauli_x(const int target_qubit) -> expected<void, Error> {
-    if (target_qubit > this->num_qubits || target_qubit <= 0)
+auto QStateVec::pauli_y(const int target_qubit) -> expected<void, Error> {
+    if (target_qubit > this->num_qubits || target_qubit <= 0) {
         return unexpected(Error::invalid_input);
+    }
+
+    for (size_t i = 0; i < this->main.size(); i++) {
+        if (abs(this->main[i]) != 0) {
+            // if |0>, scalar 1i applies to |1>
+            // if |1>, scalar -1i applies to |0>
+            auto target_state = i ^ MASK((target_qubit - 1));
+
+            if ((target_state & MASK((target_qubit - 1))) != 0) {
+                this->parity[target_state] = this->main[i] * 1i;
+            } else {
+                this->parity[target_state] = this->main[i] * -1i;
+            }
+        }
+    }
+
+    this->reset_parity_layer();
+    return {};
+}
+
+auto QStateVec::pauli_x(const int target_qubit) -> expected<void, Error> {
+    if (target_qubit > this->num_qubits || target_qubit <= 0) {
+        return unexpected(Error::invalid_input);
+    }
 
     for (size_t i = 0; i < this->main.size(); i++) {
         if (abs(this->main[i]) != 0) {
@@ -27,7 +51,7 @@ auto QStateVec::pauli_x(const int target_qubit) -> expected<void, Error> {
 
 void QStateVec::reset_parity_layer() {
     this->main = this->parity;
-    std::fill(this->parity.begin(), this->parity.end(), std::complex<PRECISION_TYPE>(0.0, 0.0));
+    std::ranges::fill(this->parity, std::complex<PRECISION_TYPE>{0.0, 0.0});
 }
 
 vector<PRECISION_TYPE> QStateVec::get_measured_qubits() const {
@@ -64,12 +88,12 @@ void QStateVec::pretty_print() const {
     }
     print_buf << "\n";
 
-    cout << print_buf.str() << endl;
+    cout << print_buf.str() << "\n";
 }
 
 QStateVec::QStateVec(const int num_qubits) {
     this->num_qubits = num_qubits;
-    uint64_t state_vec_size = 2 * pow(2, num_qubits);
+    uint64_t state_vec_size = 2 * static_cast<uint64_t>(pow(2, num_qubits));
 
     this->main = StateVector(state_vec_size, complex<PRECISION_TYPE>{0.0, 0.0});
     this->main[0] = complex<PRECISION_TYPE>{1.0, 0.0};

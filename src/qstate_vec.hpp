@@ -43,7 +43,7 @@ class QStateVec {
      *
      * @param numQubits
      */
-    QStateVec(const int num_qubits);
+    QStateVec(int num_qubits);
 
     /**
      * @brief Pretty prints the main and parity state vectors.
@@ -59,7 +59,12 @@ class QStateVec {
     /**
      * @brief Executes the Pauli X operation
      */
-    auto pauli_x(const int target_qubit) -> std::expected<void, Error>;
+    auto pauli_x(int target_qubit) -> std::expected<void, Error>;
+
+    /**
+     * @brief Executes the Pauli Y operation
+     */
+    auto pauli_y(int target_qubit) -> std::expected<void, Error>;
 
     // uint64_t& getGlobalStartIndex() { return this->globalLowerBound; }
 
